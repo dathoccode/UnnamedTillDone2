@@ -1,13 +1,16 @@
 using UnityEngine;
 
-public class PlayerIdleState : PlayerBaseState
+public class PlayerAttackState : PlayerBaseState
 {
     public override void EnterState(PlayerStateManager player)
     {
+        player.Animator.SetTrigger("AttackTrigger");
+        player.SwitchState(player.PlayerIdleState);
     }
 
     public override void ExitState(PlayerStateManager player)
     {
+        ResetAttackFlag(player);
     }
 
     public override void OnCollisionEnter(PlayerStateManager player, Collision2D collision)
@@ -17,13 +20,11 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void UpdateState(PlayerStateManager player)
     {
-        if (player.isAttacking)
-        {
-            player.SwitchState(player.PlayerAttackState);
-        }
-        else if (player.moveInput != Vector2.zero)
-        {
-            player.SwitchState(player.PlayerMoveState);
-        }
+        throw new System.NotImplementedException();
+    }
+
+    private void ResetAttackFlag(PlayerStateManager player)
+    {
+        player.isAttacking = false;
     }
 }

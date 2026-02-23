@@ -4,15 +4,19 @@ using UnityEngine.InputSystem;
 public class PlayerStateManager : MonoBehaviour
 {
     [Header("Component")]
-    public Animator Animator { get; private set; }
-    public SpriteRenderer SpriteRenderer { get; private set; }
-    public PlayerInputActions PlayerInputActions { get; private set; }
+    public Animator Animator;
+    public SpriteRenderer SpriteRenderer;
+    public PlayerInputActions PlayerInputActions;
+
+    [Header("Input")]
     public Vector2 moveInput;
+    public bool isAttacking;
 
     // States
     public PlayerBaseState currentState;
     public PlayerIdleState PlayerIdleState { get; private set; }
     public PlayerMoveState PlayerMoveState { get; private set; }
+    public PlayerAttackState PlayerAttackState { get; private set; }
 
     private void Awake()
     {
@@ -20,6 +24,18 @@ public class PlayerStateManager : MonoBehaviour
         
         PlayerInputActions.Player.Move.performed += OnMovePerformed;
         PlayerInputActions.Player.Move.canceled += OnMoveCanceled;
+        PlayerInputActions.Player.Attack.performed += OnAttack;
+        
+    }
+
+    private void OnEnable()
+    {
+        PlayerInputActions.Enable();
+    }
+
+    private void OnDisable()
+    {
+        PlayerInputActions.Disable();
     }
 
     private void LoadComponent()
@@ -27,8 +43,7 @@ public class PlayerStateManager : MonoBehaviour
         PlayerInputActions = new PlayerInputActions();
         PlayerIdleState = new PlayerIdleState();
         PlayerMoveState = new PlayerMoveState();
-        Animator = GetComponentInChildren<Animator>();
-        SpriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        PlayerAttackState = new PlayerAttackState();
     }
 
     void Start()
@@ -37,9 +52,8 @@ public class PlayerStateManager : MonoBehaviour
         currentState.EnterState(this);
     }
 
-    void Update()
+    void FixedUpdate()
     {
-
         currentState.UpdateState(this);
     }
 
@@ -58,5 +72,10 @@ public class PlayerStateManager : MonoBehaviour
     private void OnMoveCanceled(InputAction.CallbackContext context)
     {
         moveInput = Vector2.zero;
-    }   
+    }
+
+    private void OnAttack(InputAction.CallbackContext context)
+    {
+        isAttacking = true;
+    }
 }

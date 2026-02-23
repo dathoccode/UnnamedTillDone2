@@ -2,33 +2,17 @@ using UnityEngine;
 
 public class PlayerMoveState : PlayerBaseState
 {
+    private float moveSpeed = 5f;
     public override void EnterState(PlayerStateManager player)
     {
-        switch (player.moveInput.x)
-        {
-            case > 0:
-                player.SpriteRenderer.flipX = false;
-                break;
-            case < 0:
-                player.SpriteRenderer.flipX = true;
-                break;
-        }
 
-        switch (player.moveInput) 
-        {
-            case Vector2 v when v.magnitude > 0:
-                player.Animator.SetBool("IsMoving", true);
-                break;
-            default:
-                player.Animator.SetBool("IsMoving", false);
-                break;
-        }
+        player.Animator.SetBool("IsMoving", true);
 
     }
 
     public override void ExitState(PlayerStateManager player)
     {
-        throw new System.NotImplementedException();
+        player.Animator.SetBool("IsMoving", false);
     }
 
     public override void OnCollisionEnter(PlayerStateManager player, Collision2D collision)
@@ -38,6 +22,16 @@ public class PlayerMoveState : PlayerBaseState
 
     public override void UpdateState(PlayerStateManager player)
     {
-        
+        player.Animator.SetFloat("XInput", player.moveInput.x);
+        player.Animator.SetFloat("YInput", player.moveInput.y);
+        player.transform.parent.Translate(player.moveInput * moveSpeed * Time.deltaTime);
+        if (player.isAttacking)
+        {
+            player.SwitchState(player.PlayerAttackState);
+        }
+        else if (player.moveInput == Vector2.zero)
+        {
+            player.SwitchState(player.PlayerIdleState);
+        }
     }
 }
